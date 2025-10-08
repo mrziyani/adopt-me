@@ -10,16 +10,17 @@ const SearchParams = () => {
   const [animal, setAnimal] = useState("");
   const [breed, setBreed] = useState("");
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [submitKey, setSubmitKey] = useState(0);
 
   const [breeds] = useBreedList(animal);
-  const { pets, status, search } = usePetList(); 
+  const pets = usePetList(animal, breed, location, availableOnly, submitKey);
 
   return (
     <div className="search-params">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          search({ animal, breed, location, availableOnly }); 
+          setSubmitKey((k) => k + 1); // trigger fetch
         }}
       >
         <label htmlFor="location">
@@ -78,14 +79,10 @@ const SearchParams = () => {
           Available Only
         </label>
 
-        <button type="submit">
-          {status === "loading" ? "Searching..." : "Search"}
-        </button>
+        <button type="submit">Search</button>
       </form>
 
-      {status === "loading" && <h2>Chargement des animaux...</h2>}
-      {status === "error" && <p>Une erreur est survenue. Réessayez.</p>}
-      {(status === "loaded" || status === "idle") && <Result pets={pets} />}
+      <Result pets={pets} />
     </div>
   );
 };

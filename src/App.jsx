@@ -1,24 +1,22 @@
-import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SearchParams from "./SearchParams";
 import Details from "./Details";
+import Header from "./Header";
+import { ThemeProvider } from "./ThemeContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="container">
-        <header>
-          <Link to="/">
-            <h1>Adopt Me!</h1>
-          </Link>
-          <p>Find your perfect pet companion</p>
-        </header>
-
-        <Routes>
-          <Route path="/" element={<SearchParams />} />
-          <Route path="/details/:id" element={<Details />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="container">
+          <Header />
+          <Routes>
+            <Route path="/" element={<SearchParams />} />
+            <Route path="/details/:id" element={<Details />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -12,12 +12,10 @@ const SearchParams = () => {
   const [breeds, setBreeds] = useState([]);
   const [loading, setLoading] = useState(true);
  
-  // ⚡️ Charger les animaux au montage et quand l’animal change
   useEffect(() => {
     loadPets();
   }, [animal]);
  
-  // 🔁 Charger les races quand on change d’animal
   useEffect(() => {
     if (!animal) {
       setBreeds([]);
@@ -26,7 +24,6 @@ const SearchParams = () => {
     loadBreeds();
   }, [animal]);
  
-  // 🔹 Fonction pour charger la liste des animaux (avec filtres)
   async function loadPets() {
     setLoading(true);
     let url = "http://localhost:3001/pets?";
@@ -50,7 +47,6 @@ const SearchParams = () => {
     }
   }
  
-  // 🔹 Fonction pour charger les races
   async function loadBreeds() {
     try {
       const response = await fetch("http://localhost:3001/breeds");

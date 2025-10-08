@@ -1,73 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Result from "./Result";
- 
+import useBreedList from "./useBreedList";
+import usePetList from "./usePetList";
+
 const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
- 
+
 const SearchParams = () => {
   const [location, setLocation] = useState("");
   const [animal, setAnimal] = useState("");
   const [breed, setBreed] = useState("");
   const [availableOnly, setAvailableOnly] = useState(false);
-  const [pets, setPets] = useState([]);
-  const [breeds, setBreeds] = useState([]);
-  const [loading, setLoading] = useState(true);
- 
-  useEffect(() => {
-    loadPets();
-  }, [animal]);
- 
-  useEffect(() => {
-    if (!animal) {
-      setBreeds([]);
-      return;
-    }
-    loadBreeds();
-  }, [animal]);
- 
-  async function loadPets() {
-    setLoading(true);
-    let url = "http://localhost:3001/pets?";
-    const params = [];
- 
-    if (animal) params.push(`animal=${animal}`);
-    if (breed) params.push(`breed=${breed}`);
-    if (location) params.push(`city=${location.split(",")[0].trim()}`);
-    if (availableOnly) params.push(`available=${availableOnly}`);
- 
-    url += params.join("&");
- 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setPets(data || []);
-    } catch (err) {
-      console.error("Erreur lors du chargement des animaux :", err);
-    } finally {
-      setLoading(false);
-    }
-  }
- 
-  async function loadBreeds() {
-    try {
-      const response = await fetch("http://localhost:3001/breeds");
-      const data = await response.json();
-      setBreeds(data[animal] || []);
-    } catch (err) {
-      console.error("Erreur lors du chargement des races :", err);
-      setBreeds([]);
-    }
-  }
- 
-  if (loading) {
-    return <h2>Chargement des animaux...</h2>;
-  }
- 
+
+  const [breeds] = useBreedList(animal);
+  const { pets, status, search } = usePetList(); 
+
   return (
     <div className="search-params">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          loadPets();
+          search({ animal, breed, location, availableOnly }); 
         }}
       >
         <label htmlFor="location">
@@ -79,7 +31,7 @@ const SearchParams = () => {
             onChange={(e) => setLocation(e.target.value)}
           />
         </label>
- 
+
         <label htmlFor="animal">
           Animal
           <select
@@ -91,14 +43,14 @@ const SearchParams = () => {
             }}
           >
             <option value="">All Animals</option>
-            {ANIMALS.map((animal) => (
-              <option key={animal} value={animal}>
-                {animal}
+            {ANIMALS.map((a) => (
+              <option key={a} value={a}>
+                {a}
               </option>
             ))}
           </select>
         </label>
- 
+
         <label htmlFor="breed">
           Breed
           <select
@@ -115,7 +67,7 @@ const SearchParams = () => {
             ))}
           </select>
         </label>
- 
+
         <label className="checkbox-label" htmlFor="availableOnly">
           <input
             type="checkbox"
@@ -125,13 +77,17 @@ const SearchParams = () => {
           />
           Available Only
         </label>
- 
-        <button type="submit">Search</button>
+
+        <button type="submit">
+          {status === "loading" ? "Searching..." : "Search"}
+        </button>
       </form>
- 
-      <Result pets={pets} />
+
+      {status === "loading" && <h2>Chargement des animaux...</h2>}
+      {status === "error" && <p>Une erreur est survenue. Réessayez.</p>}
+      {(status === "loaded" || status === "idle") && <Result pets={pets} />}
     </div>
   );
 };
- 
+
 export default SearchParams;
